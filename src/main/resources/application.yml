@@ -3,6 +3,6 @@ spring:
     oauth2:
       client:
         registration:
-          facebook:
-            client-id: client_id
-            client-secret: secret_key
+          github:
+            client-id: github_id
+            client-secret: github_secret_key

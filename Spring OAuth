@@ -120,3 +120,14 @@ We also need to setup an application on our target profile i.e if we want to do 
 structure for it.
 We always need a App Id and App Secret to authorise/authenticate with any type of services like github/facebook.
 
+So if you will see that just by adding a dependency and annotation with the configurations in application.yaml
+we were able to authenticate to our application.
+So if we do Oauth for facebook and then open localhost it will ask for OAuth authentication and if we
+click on authorise, then it will allow the user to access our localhost.
+
+Disadvantages of Oauth for this are :
+1) When the OAuth exchange happen the id and key would be like on that particular session.
+    However suppose the user has logged out and now if he tries to authenticate your application using OAuth
+    he needs to sign in with the google account and at this point the user would be like seeing the app
+    as a vulnerability like if the name and password the application is asking might be for stealing or accessing
+    the google account.
