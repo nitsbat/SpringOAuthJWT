@@ -1,0 +1,122 @@
+OAuth is used for authorisation. and to be specific authorisation between services.
+
+OAuth can be seen as a Car-Valet model. In car-Valat model the user gives a key to the valat and the person does
+the parking for him, but if the car is new and expensive there will be like a danger of theft or some damage to car
+So most of the cars have valat keys which allows them only to start and stop a car. That key will not be able to
+open trunk or any important cabin in the car.
+
+So OAuth lets one service to use some limited resources of other service. Let's take an example . Suppose
+we want to add a pic in instagram but that pic is in the google drive. So one way is to do is like user first download
+that pic in local storage and then upload it to the instagram.
+But to avoid, In OAuth what it does like when instagram directly ask for google drive that can i access this, so
+instead of denying or uploading it will first goes to user an authenticate it, If the user validate the instagram
+that it is a valid request so google drive will allowed the instagram that it can access that pic and will give
+the authorisation token to the instagram so that next time it can show that token directly and access it. The structure
+of the token will contains user-allowed permissions and will be trustable and obviously this will be in the form
+of JWT token.
+
+************************************** How do OAuth flows work ***********************
+
+There are different ways in which OAuth flows through the services.
+
+Basic Terminologies
+
+Resource - Things that are protected but needs to be accessed. e.g photos in above example
+Resource Owner - Person who has access to the resource right now. e.g user
+                 Also it is an entity that is capable of granting access to a protected resource.
+
+Resource Server - The server hosting the protected resource. e,g in above case it's the google drive.
+                    It actually holds the resource.
+CLIENT - It is an application which needs access to that protected resource on behalf of resource owner.
+            In above case it was the instagram.
+
+Here you should know that the burden of security should be with the Resource server to provide the right
+authorisation. So there will be an authorisation server coupled with the resource server for this.
+
+Authorisation Server- The server issuing access tokens to the client. Generally the Authorisation and resource server are
+                        internally linked up with each other. Authorisation Server is responsible for the main authorisation.
+
+
+There are many flows of OAuth and there corresponding implementations. We will be talking about three of them.
+https://www.youtube.com/watch?v=3pZ3Nh8tgTE&list=PLqq-6Pq4lTTYTEooakHchTGglSvkZAjnE&index=15
+
+**********************   OAuth Flow :1 Authorization Code FLOW **********************
+
+So we will take our previous example as the use case in which the instagram trying to upload the user pic directly from the google drive:
+Here, the roles would be like :
+Resource - Image
+Resource Owner - User
+Resource Server with Authorisation Server - Google drive
+Client - Instagram
+
+The following steps are there in flow no 1 :
+
+1) Firstly the instagram or the Client will ask to google drive to upload the pic.
+2) The instagram will ask to the authorisation server.
+3) Authorisation server will stop the request and will confirm from the Resource owner i.e user that whether you requested
+    or not.
+4) After user nod for the validation the authorisation server issues an authorisation token to the Client or instagram.
+5) With the help of this authorisation token the instagram will authorise and ask authorisation server for the Access token
+    So basically the client will show the authorisation token to which the authorisation server will return an Access token.
+6) The client/instagram will request for the resource by showing this Access token to the Resource server.
+7) The server will validate this access token with the authorisation server and if verified correctly will provide the
+    resource to the client or client can access that API.
+
+So this is flow no 1. So this is like Auth token->Auth Token->Access Token
+This is the best and safest flow of OAuth with maximum security.
+
+**********************   OAuth Flow :2 Implicit FLOW **********************
+
+Implicit flow is very similar to the first flow. Just there is a difference like in step 4 and 5 where the authorisation
+server issues the clien/instagram with authorisation token and then the client exchange this Auth token again with auth server
+for the access token, so in Implicit flow the authorisation server directly issues the client with the Access token.
+Here Authorisation token doesn't come into the picture.
+
+The first question or drawback which is obvious by looking is like what if someone steals that token. Once the token is
+accessed by some unauthorised user then it can use that resource numerous times.
+But similar can takes place in the first way also, yes it can happen in first flow also. but there the client and server
+are exchanging the auth token in order to get the access token and hence we can make this behavior very encrypted and
+complex with more security walls in between . As a result the first way is far more secure than this one.
+
+This way is primarily used with short lived access tokens and basically used in Javascript apps.
+
+************* Client credentials flow : OAuth between Microservices *******************************
+
+This is used when the client is very well trusted.
+So the example where the client is very well trusted is when the user is itself creating the client i.e in microservices.
+Now suppose there are two microservices. MicroService1 and MicroService2
+
+There is a database in this application for suppose in which Employee details and their payrolls information are there.
+Suppose MicroService2 has the access for database and is having API's endpoint and now MicroService1 wants to access some
+of that end-points or suppose wants that only the Employee details should be accessible by the MicroService1 and not the
+payroll details.
+Hence MicroService1 will ask the authorisation server (interlinked with MicroService2) that give the access token for the
+Employee details database part and as a result it will give the token to MicroService1 which will show the token to MicroService2
+and it will allow MicroService1 to access only the Employee details.
+If MicroService1 request for the Payroll details then MicroService2 will refrain it saying that your token is only of
+Employee details and hence for accessing payroll bring me a payroll access token.
+
+**************************** Implementation of OAuth *********************************
+
+Initially OAuth is made for authorisations but in reality it is used for authentication also.
+Now suppose if we have user made client which wants to log into another resource server for the resource.
+In modern applications what happens is that when we are accessing some resource we generally depends or rely on other
+authentication service for it. e.g To log into the facebook we sometimes relies on Google like if google authorise
+the user then facebook says okay the google authorise so we also take this user as a valid one and hence it the user
+will get authenticated.
+So in the above example the user made client will be programmed like to access the resource if some other service has
+already authorised that user then it will be okay for that service as well and this only is the primary
+use of OAuth i.e to authorise between services.
+
+In modern apps, we just use OAuth to get user's profile details and hence once we get the authorised user detail we then
+don't need authentication in many of the applications.
+
+We need to add the OAuth dependency first to enable the OAuth .
+We just have to add annotation @EnableOauthSso for this. This annotation takes away all the configurations and details of users
+to authenticate with other apps. But these configurations needs to be take from external resource and hence for that
+we use application.properties. This time we will use the yml file as it contains more readable and usable format.
+
+We also need to setup an application on our target profile i.e if we want to do an OAuth with facebook we need to create a
+structure for it.
+We always need a App Id and App Secret to authorise/authenticate with any type of services like github/facebook.
+
